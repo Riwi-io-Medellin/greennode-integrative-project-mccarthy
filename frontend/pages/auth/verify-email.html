@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GreenNode | Verificar Email</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="../../styles/auth.css" />
+  <style>
+    .otp-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin: 1.75rem 0;
+    }
+    .otp-input {
+      width: 52px;
+      height: 62px;
+      text-align: center;
+      font-size: 1.6rem;
+      font-weight: 700;
+      border: 2px solid var(--gn-border);
+      border-radius: 12px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      color: var(--gn-text);
+      caret-color: var(--gn-green);
+    }
+    .otp-input:focus {
+      border-color: var(--gn-green);
+      box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.15);
+    }
+    .otp-input.filled {
+      border-color: var(--gn-green);
+      background: #f0fdf4;
+    }
+    .otp-input.error {
+      border-color: var(--gn-danger);
+      background: #fff5f5;
+    }
+    .email-chip {
+      display: inline-block;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: var(--gn-green-dark);
+      border-radius: 999px;
+      padding: 0.3rem 0.9rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-top: 0.4rem;
+    }
+    #resendBtn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body class="auth-page">
+<main class="container py-4">
+  <div class="row min-vh-100 align-items-center justify-content-center">
+    <div class="col-12 col-md-8 col-lg-5">
+      <div class="bg-white rounded-4 shadow-lg overflow-hidden">
+
+        <!-- Green header -->
+        <div style="background:linear-gradient(135deg,#2d6a4f 0%,#1b4332 100%);padding:2.5rem 2rem;text-align:center;">
+          <div style="width:64px;height:64px;background:rgba(255,255,255,0.18);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:2rem;">🌿</div>
+          <div style="color:#fff;font-size:1.5rem;font-weight:800;letter-spacing:0.3px;">GreenNode</div>
+          <div style="color:rgba(255,255,255,0.75);font-size:0.88rem;margin-top:0.3rem;">Verifica tu cuenta para continuar</div>
+        </div>
+
+        <!-- Body -->
+        <div style="padding:2rem 2rem 1.5rem;">
+          <div id="globalAlert" class="alert d-none" role="alert"></div>
+
+          <h2 class="fw-bold mb-1" style="font-size:1.25rem;">Revisa tu correo</h2>
+          <p class="text-muted mb-0" style="font-size:0.9rem;">
+            Enviamos un código de 6 dígitos a:
+          </p>
+          <div class="email-chip" id="emailDisplay">—</div>
+
+          <!-- OTP inputs -->
+          <div class="otp-group" id="otpGroup">
+            <input class="otp-input" type="text" inputmode="numeric" maxlength="1" />
+            <input class="otp-input" type="text" inputmode="numeric" maxlength="1" />
+            <input class="otp-input" type="text" inputmode="numeric" maxlength="1" />
+            <input class="otp-input" type="text" inputmode="numeric" maxlength="1" />
+            <input class="otp-input" type="text" inputmode="numeric" maxlength="1" />
+            <input class="otp-input" type="text" inputmode="numeric" maxlength="1" />
+          </div>
+
+          <button id="btnVerify" class="btn btn-success w-100 auth-btn mb-3" disabled>
+            <span id="verifyText">Verificar cuenta</span>
+            <span id="verifyLoading" class="d-none">
+              <span class="spinner-border spinner-border-sm me-2"></span>Verificando...
+            </span>
+          </button>
+
+          <div class="text-center">
+            <p class="text-muted mb-1" style="font-size:0.85rem;">¿No recibiste el código?</p>
+            <button id="resendBtn" class="btn btn-link text-decoration-none fw-semibold p-0" style="color:var(--gn-green-dark);font-size:0.88rem;" disabled>
+              Reenviar código <span id="resendTimer"></span>
+            </button>
+          </div>
+
+          <div class="text-center mt-3">
+            <a href="/login" class="text-muted" style="font-size:0.82rem;">← Volver al inicio de sesión</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { verifyEmailCode, resendVerificationCode } from '../../js/services/authService.js';
+
+// --- Read email from URL ---
+const params = new URLSearchParams(location.search);
+const email = decodeURIComponent(params.get('email') || '');
+document.getElementById('emailDisplay').textContent = email || 'tu correo';
+
+// --- Alert helper ---
+function showAlert(msg, type = 'danger') {
+  const el = document.getElementById('globalAlert');
+  el.className = `alert alert-${type}`;
+  el.textContent = msg;
+}
+function hideAlert() {
+  document.getElementById('globalAlert').className = 'alert d-none';
+}
+
+// --- OTP logic ---
+const inputs = [...document.querySelectorAll('.otp-input')];
+const btnVerify = document.getElementById('btnVerify');
+
+function getCode() {
+  return inputs.map(i => i.value).join('');
+}
+
+function checkComplete() {
+  const complete = inputs.every(i => i.value.match(/\d/));
+  btnVerify.disabled = !complete;
+}
+
+inputs.forEach((input, idx) => {
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace' && !input.value && idx > 0) {
+      inputs[idx - 1].value = '';
+      inputs[idx - 1].classList.remove('filled');
+      inputs[idx - 1].focus();
+    }
+  });
+
+  input.addEventListener('input', () => {
+    // Allow only digits
+    input.value = input.value.replace(/\D/g, '').slice(-1);
+    input.classList.toggle('filled', input.value !== '');
+    input.classList.remove('error');
+
+    if (input.value && idx < inputs.length - 1) {
+      inputs[idx + 1].focus();
+    }
+    checkComplete();
+  });
+
+  // Handle paste on any input
+  input.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const pasted = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+    pasted.split('').forEach((ch, i) => {
+      if (inputs[i]) {
+        inputs[i].value = ch;
+        inputs[i].classList.add('filled');
+        inputs[i].classList.remove('error');
+      }
+    });
+    const next = Math.min(pasted.length, inputs.length - 1);
+    inputs[next].focus();
+    checkComplete();
+  });
+});
+
+// --- Verify ---
+btnVerify.addEventListener('click', async () => {
+  const code = getCode();
+  hideAlert();
+
+  document.getElementById('verifyText').classList.add('d-none');
+  document.getElementById('verifyLoading').classList.remove('d-none');
+  btnVerify.disabled = true;
+
+  try {
+    const result = await verifyEmailCode(email, code);
+    // Auto-login: store token and user, redirect
+    localStorage.setItem('user', JSON.stringify(result.data));
+    localStorage.setItem('token', result.token || '');
+    const role = result?.data?.role;
+    window.location.replace(role === 'admin' ? '/admin/dashboard' : '/client/proyectos');
+  } catch (err) {
+    inputs.forEach(i => i.classList.add('error'));
+    showAlert(err.message || 'Código inválido. Inténtalo de nuevo.');
+    document.getElementById('verifyText').classList.remove('d-none');
+    document.getElementById('verifyLoading').classList.add('d-none');
+    btnVerify.disabled = false;
+  }
+});
+
+// --- Resend with 60s cooldown ---
+let resendSeconds = 60;
+const resendBtn = document.getElementById('resendBtn');
+const resendTimer = document.getElementById('resendTimer');
+
+function startResendTimer(seconds) {
+  resendSeconds = seconds;
+  resendBtn.disabled = true;
+  const interval = setInterval(() => {
+    resendSeconds--;
+    resendTimer.textContent = resendSeconds > 0 ? `(${resendSeconds}s)` : '';
+    if (resendSeconds <= 0) {
+      clearInterval(interval);
+      resendBtn.disabled = false;
+    }
+  }, 1000);
+  resendTimer.textContent = `(${resendSeconds}s)`;
+}
+
+startResendTimer(60);
+
+resendBtn.addEventListener('click', async () => {
+  hideAlert();
+  resendBtn.disabled = true;
+  resendTimer.textContent = '';
+  try {
+    await resendVerificationCode(email);
+    showAlert('Código reenviado. Revisa tu correo.', 'success');
+    inputs.forEach(i => { i.value = ''; i.classList.remove('filled', 'error'); });
+    inputs[0].focus();
+    checkComplete();
+    startResendTimer(60);
+  } catch (err) {
+    showAlert(err.message || 'No se pudo reenviar el código.');
+    resendBtn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
