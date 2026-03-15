@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GreenNode | Nueva Cotización</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../../styles/dashboard.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+      .step-nav {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        overflow-x: auto;
+        padding: 0.25rem 0 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+      .snav-item {
+        display: flex;
+        align-items: center;
+      }
+      .snav-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 2px solid var(--gn-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--gn-muted);
+        flex-shrink: 0;
+        background: var(--gn-white);
+      }
+      .snav-circle.done {
+        background: var(--gn-green);
+        border-color: var(--gn-green);
+        color: #fff;
+      }
+      .snav-circle.active {
+        border-color: var(--gn-green);
+        color: var(--gn-green);
+      }
+      .snav-label {
+        font-size: 0.78rem;
+        font-weight: 600;
+        margin: 0 0.4rem;
+        color: var(--gn-muted);
+        white-space: nowrap;
+      }
+      .snav-label.active {
+        color: var(--gn-green);
+      }
+      .snav-line {
+        width: 48px;
+        height: 2px;
+        background: var(--gn-border);
+        flex-shrink: 0;
+      }
+      .snav-line.done {
+        background: var(--gn-green);
+      }
+      .territory-option {
+        border: 1px solid var(--gn-border);
+        border-radius: 10px;
+        padding: 0.85rem 1.1rem;
+        cursor: pointer;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        transition: all 0.15s;
+      }
+      .territory-option:hover,
+      .territory-option.selected {
+        border-color: var(--gn-green);
+        background: #f0fdf4;
+      }
+      .species-option {
+        border: 1px solid var(--gn-border);
+        border-radius: 10px;
+        padding: 0.85rem 1.1rem;
+        cursor: pointer;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: all 0.15s;
+      }
+      .species-option:hover,
+      .species-option.selected {
+        border-color: var(--gn-green);
+        background: #f0fdf4;
+      }
+      .species-radio {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2px solid var(--gn-border);
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .species-option.selected .species-radio {
+        background: var(--gn-green);
+        border-color: var(--gn-green);
+      }
+      .species-option.selected .species-radio::after {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #fff;
+      }
+      .species-survival {
+        margin-left: auto;
+        font-weight: 700;
+        color: var(--gn-green);
+        font-size: 0.9rem;
+      }
+      .step-panel {
+        display: none;
+      }
+      .step-panel.active {
+        display: block;
+      }
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--gn-border);
+        font-size: 0.88rem;
+      }
+      .summary-row:last-child {
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon" style="background: #16a34a">
+          <i class="bi bi-tree-fill"></i>
+        </div>
+        <span class="sidebar-brand-name">GreenNode</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li>
+          <a href="/client/proyectos"
+            ><i class="bi bi-folder"></i
+            ><span class="nav-label">Proyectos</span></a
+          >
+        </li>
+        <li class="active">
+          <a href="/client/cotizaciones"
+            ><i class="bi bi-file-earmark-text"></i
+            ><span class="nav-label">Cotizaciones</span></a
+          >
+        </li>
+      </ul>
+      <div class="sidebar-footer">
+        <button class="collapse-btn" id="collapseBtn">
+          <i class="bi bi-chevron-left"></i
+          ><span class="collapse-text">Colapsar</span>
+        </button>
+      </div>
+    </aside>
+    <div class="main-wrapper" id="mainWrapper">
+      <div class="topbar">
+        <div class="topbar-company">
+          <div class="company-avatar" id="companyAvatar">EA</div>
+          <span id="companyName">Mi Empresa</span>
+        </div>
+        <div class="topbar-actions">
+          <div
+            class="user-avatar"
+            id="userAvatar"
+            onclick="openCompanyModal()"
+            style="cursor: pointer"
+          ></div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="detail-header">
+          <a href="/client/cotizaciones" class="btn-back"
+            ><i class="bi bi-arrow-left"></i
+          ></a>
+          <div>
+            <h2 style="margin: 0; font-size: 1.4rem; font-weight: 700">
+              Nueva Cotización
+            </h2>
+            <div style="color: var(--gn-muted); font-size: 0.85rem">
+              GreenNode IA generará un Marco Lógico técnico
+            </div>
+          </div>
+        </div>
+
+        <!-- Step nav -->
+        <div class="step-nav" id="stepNav">
+          <div class="snav-item">
+            <div class="snav-circle active" id="sn1">1</div>
+            <span class="snav-label active" id="sl1">Empresa</span>
+          </div>
+          <div class="snav-line" id="sl-1"></div>
+          <div class="snav-item">
+            <div class="snav-circle" id="sn2">2</div>
+            <span class="snav-label" id="sl2">Territorio</span>
+          </div>
+          <div class="snav-line" id="sl-2"></div>
+          <div class="snav-item">
+            <div class="snav-circle" id="sn3">3</div>
+            <span class="snav-label" id="sl3">Resumen</span>
+          </div>
+          <div class="snav-line" id="sl-3"></div>
+          <div class="snav-item">
+            <div class="snav-circle" id="sn4">4</div>
+            <span class="snav-label" id="sl4">Especie</span>
+          </div>
+          <div class="snav-line" id="sl-4"></div>
+          <div class="snav-item">
+            <div class="snav-circle" id="sn5">5</div>
+            <span class="snav-label" id="sl5">Confirmar</span>
+          </div>
+        </div>
+
+        <!-- Step 1: Empresa -->
+        <div class="step-panel active card-panel" id="step1">
+          <h3 style="font-weight: 700; margin-bottom: 1rem">
+            Empresa y Sector
+          </h3>
+          <div
+            style="
+              border: 1px solid var(--gn-green);
+              border-radius: 12px;
+              padding: 1.25rem;
+              background: #f0fdf4;
+              display: flex;
+              align-items: center;
+              gap: 1rem;
+            "
+          >
+            <div
+              style="
+                width: 48px;
+                height: 48px;
+                background: #dcfce7;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.3rem;
+              "
+            >
+              🏢
+            </div>
+            <div style="flex: 1">
+              <div style="font-weight: 700" id="companyDisplayName">—</div>
+              <div
+                style="color: var(--gn-muted); font-size: 0.85rem"
+                id="companyDisplayMeta"
+              >
+                —
+              </div>
+            </div>
+            <span
+              style="
+                background: var(--gn-green);
+                color: #fff;
+                padding: 0.3rem 0.9rem;
+                border-radius: 999px;
+                font-size: 0.8rem;
+                font-weight: 700;
+              "
+              >✓ Empresa activa</span
+            >
+          </div>
+          <p
+            style="
+              color: var(--gn-muted);
+              font-size: 0.85rem;
+              margin-top: 0.75rem;
+            "
+          >
+            Esta es la empresa con la que generaremos la cotización. El cálculo
+            de árboles se hace automáticamente según el número de empleados
+            registrados.
+          </p>
+          <button
+            class="btn-primary-gn"
+            onclick="goStep(2)"
+            style="
+              width: 100%;
+              justify-content: center;
+              padding: 0.75rem;
+              margin-top: 0.5rem;
+            "
+          >
+            Siguiente ›
+          </button>
+        </div>
+
+        <!-- Step 2: Territorio -->
+        <div class="step-panel card-panel" id="step2">
+          <h3 style="font-weight: 700; margin-bottom: 0.25rem">Territorio</h3>
+          <p
+            style="
+              color: var(--gn-muted);
+              font-size: 0.85rem;
+              margin-bottom: 1rem;
+            "
+          >
+            Selecciona la zona donde se realizará la reforestación
+          </p>
+          <div id="territoriesList">Cargando territorios...</div>
+          <div style="display: flex; gap: 0.5rem; margin-top: 1rem">
+            <button class="btn-outline-gn" onclick="goStep(1)">Atrás</button>
+            <button
+              class="btn-primary-gn"
+              id="btnNextStep2"
+              onclick="goStep(3)"
+              style="
+                flex: 1;
+                justify-content: center;
+                opacity: 0.5;
+                pointer-events: none;
+              "
+              disabled
+            >
+              Siguiente ›
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Resumen del proyecto -->
+        <div class="step-panel card-panel" id="step3">
+          <h3 style="font-weight: 700; margin-bottom: 0.25rem">
+            Resumen del proyecto
+          </h3>
+          <p
+            style="
+              color: var(--gn-muted);
+              font-size: 0.85rem;
+              margin-bottom: 1rem;
+            "
+          >
+            Información sobre el territorio seleccionado
+          </p>
+          <div
+            id="territoryDetail"
+            style="
+              background: var(--gn-bg);
+              border-radius: 10px;
+              padding: 1rem;
+              margin-bottom: 1rem;
+              font-size: 0.88rem;
+            "
+          ></div>
+          <div class="form-group">
+            <label class="form-label">Título del proyecto *</label>
+            <input
+              type="text"
+              class="form-control-gn"
+              id="projectTitle"
+              placeholder="Ej. Reforestación Corredor Verde Caribe"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Descripción (opcional)</label>
+            <textarea
+              class="form-control-gn"
+              id="projectDesc"
+              placeholder="Describe brevemente los objetivos del proyecto..."
+            ></textarea>
+          </div>
+          <div style="display: flex; gap: 0.5rem; margin-top: 1rem">
+            <button class="btn-outline-gn" onclick="goStep(2)">Atrás</button>
+            <button
+              class="btn-primary-gn"
+              onclick="validateStep3()"
+              style="flex: 1; justify-content: center"
+            >
+              Siguiente ›
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 4: Especie -->
+        <div class="step-panel card-panel" id="step4">
+          <h3 style="font-weight: 700; margin-bottom: 0.25rem">
+            Preferencias de Especies
+          </h3>
+          <p
+            style="
+              color: var(--gn-muted);
+              font-size: 0.85rem;
+              margin-bottom: 1rem;
+            "
+          >
+            La IA priorizará estas especies basándose en tu zona. Selecciona
+            una.
+          </p>
+          <div id="speciesList">Cargando especies...</div>
+          <div style="display: flex; gap: 0.5rem; margin-top: 1rem">
+            <button class="btn-outline-gn" onclick="goStep(3)">Atrás</button>
+            <button
+              class="btn-primary-gn"
+              id="btnNextStep4"
+              onclick="goStep(5)"
+              style="
+                flex: 1;
+                justify-content: center;
+                opacity: 0.5;
+                pointer-events: none;
+              "
+              disabled
+            >
+              Siguiente ›
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 5: Confirmar -->
+        <div class="step-panel card-panel" id="step5">
+          <h3 style="font-weight: 700; margin-bottom: 0.25rem">Confirmación</h3>
+          <p
+            style="
+              color: var(--gn-muted);
+              font-size: 0.85rem;
+              margin-bottom: 1rem;
+            "
+          >
+            Revisa los datos antes de enviar la cotización a la IA
+          </p>
+          <div id="confirmSummary"></div>
+          <div class="alert-banner alert-info" style="margin-top: 1rem">
+            <i class="bi bi-stars"></i>
+            <span
+              >GreenNode IA generará un Marco Lógico completo con fechas,
+              actividades y presupuesto estimado.</span
+            >
+          </div>
+          <div style="display: flex; gap: 0.5rem; margin-top: 1.25rem">
+            <button class="btn-outline-gn" onclick="goStep(4)">Atrás</button>
+            <button
+              class="btn-primary-gn"
+              id="btnSubmit"
+              onclick="submitQuote()"
+              style="flex: 1; justify-content: center"
+            >
+              <span id="submitText"
+                ><i class="bi bi-stars"></i> Generar cotización con IA</span
+              >
+              <span id="submitLoading" style="display: none"
+                ><span class="spinner-border spinner-border-sm"></span>
+                Generando...</span
+              >
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import {
+        apiGet,
+        apiPost,
+        requireAuth,
+        escHtml,
+        initSidebar,
+        logout as logoutFn,
+        openCompanyModal,
+      } from "../../js/utils/api.js";
+      window.openCompanyModal = () => openCompanyModal(user);
+      window.logout = logoutFn;
+      const user = requireAuth("client");
+      initSidebar();
+
+      const initials = (user?.companyName || "ME")
+        .substring(0, 2)
+        .toUpperCase();
+      document.getElementById("companyAvatar").textContent = initials;
+      document.getElementById("companyName").textContent =
+        user?.companyName || "";
+      document.getElementById("userAvatar").textContent = initials;
+
+      let currentStep = 1;
+      let territories = [];
+      let allSpecies = [];
+      let selectedTerritory = null;
+      let selectedSpecies = null;
+
+      console.log(
+        "[nueva-cotizacion] user.employeeCount:",
+        user?.employeeCount,
+        "→ árboles estimados:",
+        (user?.employeeCount || 1) * 2,
+      );
+
+      // Step 1 - show company info
+      document.getElementById("companyDisplayName").textContent =
+        user?.companyName || "—";
+      const sectorLabels = {
+        mining: "Minería",
+        energy: "Energía",
+        construction: "Construcción",
+        food: "Alimentos",
+      };
+      document.getElementById("companyDisplayMeta").textContent =
+        `${sectorLabels[user?.economicSector] || "Sector"} · ${user?.employeeCount || "—"} empleados`;
+
+      // Load territories
+      async function loadTerritories() {
+        const res = await apiGet("/api/territories");
+        territories = res?.data || [];
+        const container = document.getElementById("territoriesList");
+        container.innerHTML = territories
+          .map(
+            (t) => `
+        <div class="territory-option" onclick="selectTerritory(${t.id})" id="terr-${t.id}" data-id="${t.id}">
+            <div style="font-weight:600">${escHtml(t.name)}</div>
+            <div style="font-size:0.8rem;color:var(--gn-muted)">${escHtml(t.city)} · Cap: ${(t.seedling_capacity || 0).toLocaleString()} plántulas</div>
+        </div>
+    `,
+          )
+          .join("");
+      }
+
+      window.selectTerritory = function (id) {
+        selectedTerritory = territories.find((t) => t.id === id);
+        document
+          .querySelectorAll(".territory-option")
+          .forEach((el) => el.classList.remove("selected"));
+        document.getElementById(`terr-${id}`).classList.add("selected");
+        const btn = document.getElementById("btnNextStep2");
+        btn.style.opacity = "1";
+        btn.style.pointerEvents = "auto";
+        btn.disabled = false;
+      };
+
+      window.validateStep3 = function () {
+        const title = document.getElementById("projectTitle").value.trim();
+        if (!title) {
+          Swal.fire({
+            icon: "warning",
+            title: "Escribe un título para el proyecto",
+            confirmButtonColor: "#198754",
+          });
+          return;
+        }
+        goStep(4);
+        loadSpecies();
+      };
+
+      async function loadSpecies() {
+        const res = await apiGet(
+          `/api/species/by-territory/${selectedTerritory.id}`,
+        );
+        allSpecies = res?.data || [];
+        const container = document.getElementById("speciesList");
+        if (!allSpecies.length) {
+          container.innerHTML =
+            '<div class="empty-state"><i class="bi bi-tree"></i>No hay especies disponibles para este territorio.</div>';
+          return;
+        }
+        container.innerHTML = allSpecies
+          .map(
+            (s) => `
+        <div class="species-option" onclick="selectSpecies(${s.id})" id="sp-${s.id}">
+            <div class="species-radio"></div>
+            <div>
+                <div style="font-weight:600">${escHtml(s.name)}</div>
+                <div style="font-size:0.78rem;color:var(--gn-muted)">${escHtml(s.ecosystem_service || "")}</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0;margin-left:auto;white-space:nowrap">
+                <div class="species-survival">${s.survival_rate}% supervivencia</div>
+                ${s.unit_price ? `<div style="font-size:0.78rem;color:var(--gn-muted);margin-top:2px">$${Number(s.unit_price).toLocaleString("es-CO")} / unidad</div>` : ""}
+            </div>
+        </div>
+    `,
+          )
+          .join("");
+      }
+
+      window.selectSpecies = function (id) {
+        const res = document.querySelectorAll(".species-option");
+        res.forEach((el) => el.classList.remove("selected"));
+        document.getElementById(`sp-${id}`).classList.add("selected");
+        selectedSpecies = allSpecies.find((s) => s.id === id) || { id };
+        const btn = document.getElementById("btnNextStep4");
+        btn.style.opacity = "1";
+        btn.style.pointerEvents = "auto";
+        btn.disabled = false;
+      };
+
+      window.goStep = function (step) {
+        document
+          .querySelectorAll(".step-panel")
+          .forEach((p) => p.classList.remove("active"));
+        document.getElementById(`step${step}`).classList.add("active");
+        currentStep = step;
+        updateStepNav(step);
+
+        if (step === 3 && selectedTerritory) {
+          document.getElementById("territoryDetail").innerHTML = `
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+                <div><strong>Territorio:</strong> ${escHtml(selectedTerritory.name)}</div>
+                <div><strong>Ciudad:</strong> ${escHtml(selectedTerritory.city)}</div>
+                <div><strong>Capacidad:</strong> ${(selectedTerritory.seedling_capacity || 0).toLocaleString()} plántulas</div>
+                <div><strong>Dificultad de acceso:</strong> ${escHtml(selectedTerritory.access_difficulty || "—")}</div>
+                <div><strong>Disponibilidad de agua:</strong> ${escHtml(selectedTerritory.water_availability || "—")}</div>
+                <div><strong>Árboles estimados:</strong> ${((user?.employeeCount || 1) * 2).toLocaleString()}</div>
+            </div>
+        `;
+        }
+
+        if (step === 5) buildSummary();
+      };
+
+      function updateStepNav(step) {
+        for (let i = 1; i <= 5; i++) {
+          const circle = document.getElementById(`sn${i}`);
+          const label = document.getElementById(`sl${i}`);
+          circle.classList.remove("done", "active");
+          label.classList.remove("active");
+          if (i < step) {
+            circle.classList.add("done");
+            circle.textContent = "✓";
+          } else if (i === step) {
+            circle.classList.add("active");
+            circle.textContent = i;
+          } else {
+            circle.textContent = i;
+          }
+          if (i === step) label.classList.add("active");
+
+          if (i < 5) {
+            const line = document.getElementById(`sl-${i}`);
+            line?.classList.toggle("done", i < step);
+          }
+        }
+      }
+
+      function buildSummary() {
+        const title = document.getElementById("projectTitle").value.trim();
+        const desc = document.getElementById("projectDesc").value.trim();
+        const trees = (user?.employeeCount || 1) * 2;
+        const unitPrice = selectedSpecies?.unit_price
+          ? Number(selectedSpecies.unit_price)
+          : null;
+        const subtotal = unitPrice ? unitPrice * trees : null;
+        const fmtCOP = (n) => `COP $${n.toLocaleString("es-CO")}`;
+
+        document.getElementById("confirmSummary").innerHTML = `
+        <div class="summary-row"><span style="color:var(--gn-muted)">Empresa</span><strong>${escHtml(user?.companyName || "—")}</strong></div>
+        <div class="summary-row"><span style="color:var(--gn-muted)">Título del proyecto</span><strong>${escHtml(title)}</strong></div>
+        <div class="summary-row"><span style="color:var(--gn-muted)">Territorio</span><strong>${escHtml(selectedTerritory?.name || "—")}</strong></div>
+        <div class="summary-row"><span style="color:var(--gn-muted)">Especie</span><strong>${escHtml(selectedSpecies?.name || "—")}</strong></div>
+        <div class="summary-row"><span style="color:var(--gn-muted)">Árboles estimados</span><strong>${trees.toLocaleString()}</strong></div>
+        ${unitPrice ? `<div class="summary-row"><span style="color:var(--gn-muted)">Precio por unidad</span><strong>$${unitPrice.toLocaleString("es-CO")}</strong></div>` : ""}
+        ${
+          subtotal
+            ? `
+        <div class="summary-row"><span style="color:var(--gn-muted)">Subtotal</span><strong>${fmtCOP(subtotal)}</strong></div>
+        <div class="summary-row"><span style="color:var(--gn-muted)">Gastos operativos (50%)</span><strong>${fmtCOP(subtotal * 0.5)}</strong></div>
+        <div class="summary-row" style="border-top:2px solid var(--gn-green);margin-top:0.25rem;padding-top:0.5rem"><span style="font-weight:700">Total estimado</span><strong style="color:var(--gn-green);font-size:1rem">${fmtCOP(subtotal * 1.5)}</strong></div>
+        `
+            : ""
+        }
+        <div class="summary-row"><span style="color:var(--gn-muted)">Descripción</span><span>${escHtml(desc || "Sin descripción")}</span></div>
+    `;
+      }
+
+      window.submitQuote = async function () {
+        const title = document.getElementById("projectTitle").value.trim();
+        const desc = document.getElementById("projectDesc").value.trim();
+        if (!selectedTerritory || !selectedSpecies?.id || !title) {
+          Swal.fire({
+            icon: "warning",
+            title: "Completa todos los campos",
+            confirmButtonColor: "#198754",
+          });
+          return;
+        }
+
+        document.getElementById("submitText").style.display = "none";
+        document.getElementById("submitLoading").style.display = "flex";
+        document.getElementById("btnSubmit").disabled = true;
+
+        const res = await apiPost("/api/quotes", {
+          territory_id: selectedTerritory.id,
+          species_id: selectedSpecies.id,
+          title,
+          description: desc,
+          tree_quantity: (user?.employeeCount || 1) * 2,
+        });
+
+        document.getElementById("submitText").style.display = "flex";
+        document.getElementById("submitLoading").style.display = "none";
+        document.getElementById("btnSubmit").disabled = false;
+
+        if (res?.success) {
+          Swal.fire({
+            icon: "success",
+            title: "¡Cotización creada!",
+            html: `La IA generó el Marco Lógico técnico.<br><br><strong>${res.data?.tree_quantity?.toLocaleString()} árboles</strong> estimados.<br>El equipo revisará y enviará la cotización pronto.`,
+            confirmButtonColor: "#198754",
+            confirmButtonText: "Ver cotizaciones",
+          }).then(() => (location.href = "/client/cotizaciones"));
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: res?.message || "No se pudo crear la cotización.",
+            confirmButtonColor: "#198754",
+          });
+        }
+      };
+
+      loadTerritories();
+    </script>
+  </body>
+</html>
