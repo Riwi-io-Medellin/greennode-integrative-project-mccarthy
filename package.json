@@ -1,24 +1,22 @@
 {
-  "name": "greennode-integrative-project-mccarthy",
-  "version": "1.0.0",
-  "description": "Repositorio para el equipo GreenNode (Tecnología) - RIWI",
-  "main": "index.js",
+  "type": "module",
+  "main": "backend/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon backend/server.js",
+    "start": "node backend/server.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Riwi-io-Medellin/greennode-integrative-project-mccarthy.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/Riwi-io-Medellin/greennode-integrative-project-mccarthy/issues"
-  },
-  "homepage": "https://github.com/Riwi-io-Medellin/greennode-integrative-project-mccarthy#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "@google/generative-ai": "^0.24.1",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.1.1",
+    "nodemailer": "^8.0.2",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }
