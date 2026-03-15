@@ -1,0 +1,24 @@
+{
+  "name": "greennode-integrative-project-mccarthy",
+  "version": "1.0.0",
+  "description": "Repositorio para el equipo GreenNode (Tecnología) - RIWI",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Riwi-io-Medellin/greennode-integrative-project-mccarthy.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Riwi-io-Medellin/greennode-integrative-project-mccarthy/issues"
+  },
+  "homepage": "https://github.com/Riwi-io-Medellin/greennode-integrative-project-mccarthy#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
