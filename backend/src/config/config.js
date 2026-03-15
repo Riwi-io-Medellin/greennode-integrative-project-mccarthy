@@ -6,8 +6,8 @@ function requireEnv(name) {
 
 
 const config = {
+    
     port: Number(process.env.PORT || 3000),
-
 
     db: {
         host: requireEnv("DB_HOST"),
