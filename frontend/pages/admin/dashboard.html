@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GreenNode | Dashboard Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../../styles/dashboard.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <div class="sidebar-brand-icon"><i class="bi bi-tree"></i></div>
+        <span class="sidebar-brand-name">GreenNode</span>
+    </div>
+    <ul class="sidebar-nav">
+        <li class="active"><a href="/admin/dashboard"><i class="bi bi-grid"></i><span class="nav-label">Dashboard</span></a></li>
+        <li><a href="/admin/cotizaciones"><i class="bi bi-file-text"></i><span class="nav-label">Cotizaciones</span></a></li>
+        <li><a href="/admin/validacion"><i class="bi bi-shield-check"></i><span class="nav-label">Validación Humana</span></a></li>
+        <li><a href="/admin/proyectos"><i class="bi bi-folder"></i><span class="nav-label">Proyectos</span></a></li>
+        <li><a href="/admin/archivos"><i class="bi bi-archive"></i><span class="nav-label">Archivos</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <button class="btn-logout-sidebar" onclick="logout()">
+            <i class="bi bi-box-arrow-right"></i>
+            <span class="logout-label">Cerrar sesión</span>
+        </button>
+        <button class="collapse-btn" id="collapseBtn">
+            <i class="bi bi-chevron-left"></i>
+            <span class="collapse-text">Colapsar</span>
+        </button>
+    </div>
+</aside>
+
+<div class="main-wrapper" id="mainWrapper">
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <div class="topbar-company">
+            <div class="company-avatar" id="adminAvatar">AD</div>
+            <span id="adminName">Administrador</span>
+        </div>
+        <div class="topbar-search">
+            <input type="text" placeholder="Buscar proyecto, archivo, certificado..." />
+        </div>
+        <div class="topbar-actions">
+            <button class="btn-logout-topbar" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Salir</button>
+            <div class="topbar-icon-btn">
+                <i class="bi bi-bell"></i>
+            </div>
+            <div class="topbar-icon-btn">
+                <i class="bi bi-question-circle"></i>
+            </div>
+            <div class="user-avatar" id="userAvatar" onclick="toggleDropdown()">AD
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="#"><i class="bi bi-person"></i> Mi perfil</a>
+                    <a href="#" class="logout" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+        <div class="page-title">Dashboard</div>
+        <div class="page-subtitle">Vista operacional · <span id="lastUpdated">Cargando...</span></div>
+
+        <!-- STAT CARDS -->
+        <div class="stat-cards">
+            <div class="stat-card" onclick="location.href='/admin/cotizaciones'">
+                <div class="stat-card-top">
+                    <div class="stat-card-icon" style="background:#eff6ff;color:#3b82f6"><i class="bi bi-file-earmark-text"></i></div>
+                    <span class="stat-card-arrow">→</span>
+                </div>
+                <div class="stat-card-value" id="statPending">—</div>
+                <div class="stat-card-label">Cotizaciones IA</div>
+            </div>
+            <div class="stat-card" onclick="location.href='/admin/proyectos'">
+                <div class="stat-card-top">
+                    <div class="stat-card-icon" style="background:#ecfdf5;color:#059669"><i class="bi bi-graph-up-arrow"></i></div>
+                    <span class="stat-card-arrow">→</span>
+                </div>
+                <div class="stat-card-value" id="statInProgress">—</div>
+                <div class="stat-card-label">En Progreso</div>
+            </div>
+            <div class="stat-card" onclick="location.href='/admin/proyectos'">
+                <div class="stat-card-top">
+                    <div class="stat-card-icon" style="background:#f0fdf4;color:#16a34a"><i class="bi bi-check-circle"></i></div>
+                    <span class="stat-card-arrow">→</span>
+                </div>
+                <div class="stat-card-value" id="statCompleted">—</div>
+                <div class="stat-card-label">Completados</div>
+            </div>
+            <div class="stat-card" onclick="location.href='/admin/proyectos'">
+                <div class="stat-card-top">
+                    <div class="stat-card-icon" style="background:#fef2f2;color:#ef4444"><i class="bi bi-exclamation-triangle"></i></div>
+                    <span class="stat-card-arrow">→</span>
+                </div>
+                <div class="stat-card-value" id="statCancelled">—</div>
+                <div class="stat-card-label">Cancelados</div>
+            </div>
+        </div>
+
+        <!-- CHARTS + PRIORITY -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div class="card-panel">
+                <div class="card-panel-header">
+                    <h3 class="card-panel-title">Evolución Mensual</h3>
+                    <span style="font-size:0.78rem;color:var(--gn-muted)">Proyectos y evidencias cargadas</span>
+                </div>
+                <canvas id="chartEvolucion" height="200"></canvas>
+            </div>
+            <div class="card-panel">
+                <div class="card-panel-header">
+                    <h3 class="card-panel-title">Acciones Prioritarias</h3>
+                    <span class="ai-badge"><i class="bi bi-stars"></i> IA</span>
+                </div>
+                <div id="priorityList">
+                    <div style="color:var(--gn-muted);font-size:0.85rem;text-align:center;padding:1rem;">Cargando...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROJECTS TABLE -->
+        <div class="card-panel">
+            <div class="card-panel-header">
+                <h3 class="card-panel-title">Todos los Proyectos</h3>
+                <a href="/admin/proyectos" class="card-link">Ver todos →</a>
+            </div>
+            <div style="overflow-x:auto">
+                <table class="gn-table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Proyecto</th>
+                            <th>Empresa</th>
+                            <th>Estado</th>
+                            <th>Progreso</th>
+                            <th>Árboles</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectsTableBody">
+                        <tr><td colspan="6" style="text-align:center;color:var(--gn-muted);padding:2rem">Cargando proyectos...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="../../js/pages/admin-dashboard.js"></script>
+<script>
+function toggleDropdown() {
+    document.getElementById('userDropdown').classList.toggle('show');
+}
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('#userAvatar')) {
+        document.getElementById('userDropdown').classList.remove('show');
+    }
+});
+function logout() {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    window.location.replace('/login');
+}
+
+// Sidebar collapse
+const sidebar = document.getElementById('sidebar');
+const mainWrapper = document.getElementById('mainWrapper');
+document.getElementById('collapseBtn').addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+    mainWrapper.classList.toggle('collapsed');
+});
+</script>
+</body>
+</html>
