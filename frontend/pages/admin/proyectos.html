@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GreenNode | Proyectos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../../styles/dashboard.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <div class="sidebar-brand-icon"><i class="bi bi-tree"></i></div>
+        <span class="sidebar-brand-name">GreenNode</span>
+    </div>
+    <ul class="sidebar-nav">
+        <li><a href="/admin/dashboard"><i class="bi bi-grid"></i><span class="nav-label">Dashboard</span></a></li>
+        <li><a href="/admin/cotizaciones"><i class="bi bi-file-text"></i><span class="nav-label">Cotizaciones</span></a></li>
+        <li><a href="/admin/validacion"><i class="bi bi-shield-check"></i><span class="nav-label">Validación Humana</span></a></li>
+        <li class="active"><a href="/admin/proyectos"><i class="bi bi-folder"></i><span class="nav-label">Proyectos</span></a></li>
+        <li><a href="/admin/archivos"><i class="bi bi-archive"></i><span class="nav-label">Archivos</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <button class="btn-logout-sidebar" onclick="logout()">
+            <i class="bi bi-box-arrow-right"></i>
+            <span class="logout-label">Cerrar sesión</span>
+        </button>
+        <button class="collapse-btn" id="collapseBtn"><i class="bi bi-chevron-left"></i><span class="collapse-text">Colapsar</span></button>
+    </div>
+</aside>
+<div class="main-wrapper" id="mainWrapper">
+    <div class="topbar">
+        <div class="topbar-company"><div class="company-avatar">AD</div><span id="adminName">Administrador</span></div>
+        <div class="topbar-search"><input type="text" placeholder="Buscar proyecto..." id="searchInput" /></div>
+        <div class="topbar-actions">
+            <button class="btn-logout-topbar" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Salir</button>
+            <div class="user-avatar" id="userAvatar" onclick="toggleDropdown()">AD
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="#" class="logout" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="content">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+            <div>
+                <div class="page-title">Proyectos</div>
+                <div class="page-subtitle" id="projSubtitle">Cargando...</div>
+            </div>
+            <div style="display:flex;gap:0.5rem">
+                <select id="filterStatus" class="form-control-gn" style="width:auto">
+                    <option value="">Todos los estados</option>
+                    <option value="in_progress">En Progreso</option>
+                    <option value="completed">Completados</option>
+                    <option value="quotation">Cotización</option>
+                    <option value="cancelled">Cancelados</option>
+                </select>
+            </div>
+        </div>
+        <div id="projectsList"></div>
+    </div>
+</div>
+
+<script type="module">
+import { apiGet, apiPatch, requireAuth, getStatusBadge, getStatusLabel, formatCOP, escHtml, initSidebar, logout as logoutFn } from "../../js/utils/api.js";
+window.logout = logoutFn;
+const user = requireAuth('admin');
+initSidebar();
+
+let allProjects = [];
+
+async function load() {
+    const res = await apiGet('/api/projects');
+    allProjects = res?.data || [];
+    document.getElementById('projSubtitle').textContent = `${allProjects.length} proyectos en total`;
+    render(allProjects);
+}
+
+function render(projects) {
+    const container = document.getElementById('projectsList');
+    if (projects.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="bi bi-folder-x"></i>No hay proyectos.</div>';
+        return;
+    }
+    container.innerHTML = projects.map(p => {
+        const pct = p.tree_quantity ? Math.min(100, Math.round((p.trees_planted || 0) / p.tree_quantity * 100)) : 0;
+        return `
+        <a href="/admin/proyecto-detalle?id=${p.id}" class="project-card">
+            <div class="project-card-top">
+                <div>
+                    <div class="project-code">GN-${String(p.id).padStart(4,'0')}</div>
+                    <div class="project-title">${escHtml(p.name)}</div>
+                    <div class="project-meta">${escHtml(p.company_name)} · ${escHtml(p.territory_city || p.start_date?.substring(0,10) || '—')}</div>
+                </div>
+                <div style="text-align:right">
+                    <span class="badge-status ${getStatusBadge(p.status)}">${getStatusLabel(p.status)}</span>
+                    <div class="project-price" style="margin-top:0.5rem">${formatCOP(p.quoted_amount)}</div>
+                </div>
+            </div>
+            <div class="project-bar-row">
+                <div class="progress-gn-full"><div class="progress-gn-fill" style="width:${pct}%"></div></div>
+                <span style="font-size:0.82rem;font-weight:600;min-width:40px">${pct}%</span>
+                <div class="project-stats">
+                    <span>🌱 ${(p.trees_planted||0).toLocaleString()} árboles</span>
+                    <span><i class="bi bi-camera"></i> ${p.evidence_count||0} evidencias</span>
+                </div>
+            </div>
+        </a>`;
+    }).join('');
+}
+
+document.getElementById('searchInput').addEventListener('input', filterProjects);
+document.getElementById('filterStatus').addEventListener('change', filterProjects);
+
+function filterProjects() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const status = document.getElementById('filterStatus').value;
+    render(allProjects.filter(p => 
+        (!status || p.status === status) &&
+        (!q || p.name?.toLowerCase().includes(q) || p.company_name?.toLowerCase().includes(q))
+    ));
+}
+
+function toggleDropdown() { document.getElementById('userDropdown').classList.toggle('show'); }
+document.addEventListener('click', (e) => { if (!e.target.closest('#userAvatar')) document.getElementById('userDropdown').classList.remove('show'); });
+
+load();
+</script>
+</body>
+</html>

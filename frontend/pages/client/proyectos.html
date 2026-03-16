@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GreenNode | Mis Proyectos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../../styles/dashboard.css" />
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <div class="sidebar-brand-icon" style="background:#16a34a"><i class="bi bi-tree-fill"></i></div>
+        <span class="sidebar-brand-name">GreenNode</span>
+    </div>
+    <ul class="sidebar-nav">
+        <li class="active"><a href="/client/proyectos"><i class="bi bi-folder"></i><span class="nav-label">Proyectos</span></a></li>
+        <li><a href="/client/cotizaciones"><i class="bi bi-file-earmark-text"></i><span class="nav-label">Cotizaciones</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <button class="btn-logout-sidebar" onclick="logout()">
+            <i class="bi bi-box-arrow-right"></i>
+            <span class="logout-label">Cerrar sesión</span>
+        </button>
+        <button class="collapse-btn" id="collapseBtn"><i class="bi bi-chevron-left"></i><span class="collapse-text">Colapsar</span></button>
+    </div>
+</aside>
+<div class="main-wrapper" id="mainWrapper">
+    <div class="topbar">
+        <div class="topbar-company">
+            <div class="company-avatar" id="companyAvatar">EA</div>
+            <span id="companyName">Mi Empresa</span>
+        </div>
+        <div class="topbar-search"><input type="text" placeholder="Buscar proyecto, archivo, certificado..." /></div>
+        <div class="topbar-actions">
+            <button class="btn-logout-topbar" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Salir</button>
+            <a href="/client/nueva-cotizacion" class="btn-new-quote" id="newQuoteBtn"><i class="bi bi-plus"></i> Nueva Cotización</a>
+            <div class="topbar-icon-btn"><i class="bi bi-bell"></i></div>
+            <div class="user-avatar" id="userAvatar" onclick="openCompanyModal()" style="cursor:pointer"></div>
+        </div>
+    </div>
+    <div class="content">
+        <div class="page-title">Proyectos</div>
+        <div class="page-subtitle" id="projectSubtitle">Cargando...</div>
+        <div id="blockBanner" style="display:none" class="alert-banner alert-warning" style="margin-top:1rem">
+            <i class="bi bi-exclamation-triangle"></i>
+            <span>Solo puedes tener un proyecto activo a la vez. Debes completar el proyecto en progreso para iniciar uno nuevo.</span>
+        </div>
+        <div id="projectsList" style="margin-top:1.25rem"></div>
+    </div>
+</div>
+
+<script type="module">
+import { apiGet, requireAuth, getStatusBadge, getStatusLabel, formatCOP, escHtml, initSidebar, logout as logoutFn, openCompanyModal } from "../../js/utils/api.js";
+window.openCompanyModal = () => openCompanyModal(user);
+window.logout = logoutFn;
+const user = requireAuth('client');
+initSidebar();
+
+const initials = (user?.companyName || user?.email || 'ME').substring(0,2).toUpperCase();
+document.getElementById('companyAvatar').textContent = initials;
+document.getElementById('companyName').textContent = user?.companyName || user?.email;
+document.getElementById('userAvatar').textContent = initials;
+
+async function load() {
+    const res = await apiGet('/api/projects/my');
+    const projects = res?.data || [];
+    document.getElementById('projectSubtitle').textContent = `${projects.length} proyectos en total`;
+
+    // Check if there's an active project
+    const hasActive = projects.some(p => p.status === 'in_progress');
+    if (hasActive) {
+        document.getElementById('blockBanner').style.display = 'flex';
+        document.getElementById('newQuoteBtn').style.opacity = '0.5';
+        document.getElementById('newQuoteBtn').style.pointerEvents = 'none';
+        document.getElementById('newQuoteBtn').title = 'Tienes un proyecto activo';
+    }
+
+    const container = document.getElementById('projectsList');
+    if (projects.length === 0) {
+        container.innerHTML = `
+        <div class="empty-state">
+            <i class="bi bi-folder-x"></i>
+            <div style="font-size:1rem;font-weight:600;margin-bottom:0.5rem">No tienes proyectos aún</div>
+            <p style="color:var(--gn-muted)">Crea una cotización para iniciar tu proyecto de reforestación.</p>
+            <a href="/client/nueva-cotizacion" class="btn-primary-gn" style="margin-top:0.75rem">
+                <i class="bi bi-plus"></i> Nueva Cotización
+            </a>
+        </div>`;
+        return;
+    }
+
+    container.innerHTML = projects.map(p => {
+        const pct = p.tree_quantity ? Math.min(100, Math.round((p.trees_planted || 0) / p.tree_quantity * 100)) : 0;
+        return `
+        <a href="/client/proyecto-detalle?id=${p.id}" class="project-card">
+            <div class="project-card-top">
+                <div>
+                    <div style="display:flex;gap:0.5rem;align-items:center">
+                        <div class="project-code">GN-${String(p.id).padStart(4,'0')}</div>
+                        <span class="badge-status ${getStatusBadge(p.status)}">${getStatusLabel(p.status)}</span>
+                    </div>
+                    <div class="project-title">${escHtml(p.name)}</div>
+                    <div class="project-meta">${escHtml(p.company_name)} · ${escHtml(p.territory_city || '—')}, Colombia</div>
+                </div>
+                <div style="text-align:right">
+                    <div class="project-price">${formatCOP(p.quoted_amount)}</div>
+                    <div style="font-size:0.82rem;color:var(--gn-muted)">${escHtml(p.territory_name||'—')}</div>
+                </div>
+            </div>
+            <div class="project-bar-row">
+                <div class="progress-gn-full"><div class="progress-gn-fill" style="width:${pct}%"></div></div>
+                <span style="font-size:0.82rem;font-weight:600;min-width:40px">${pct}%</span>
+                <div class="project-stats">
+                    <span>${(p.trees_planted||0).toLocaleString()} árboles</span>
+                    <span>→</span>
+                </div>
+            </div>
+        </a>`;
+    }).join('');
+}
+
+
+load();
+</script>
+</body>
+</html>

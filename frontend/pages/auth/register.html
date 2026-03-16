@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GreenNode | Registro de empresa</title>
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+  />
+  <link rel="stylesheet" href="../../styles/auth.css" />
+</head>
+<body class="auth-page">
+  <main class="container py-4">
+    <div class="row min-vh-100 align-items-center justify-content-center">
+      <div class="col-12 col-lg-10">
+        <div class="row auth-shell shadow-lg overflow-hidden rounded-4">
+
+          <section class="col-lg-6 auth-brand p-4 p-md-5 d-flex flex-column justify-content-between">
+            <div>
+              <span class="brand-badge">GreenNode</span>
+              <h1 class="display-6 fw-bold mt-4 mb-3">
+                Crea la cuenta de tu empresa y empieza a gestionar sus proyectos.
+              </h1>
+              <p class="auth-brand-text mb-4">
+                El registro está pensado para empresas cliente. El acceso administrativo se controla aparte.
+              </p>
+            </div>
+
+            <div class="auth-feature-list">
+              <div class="feature-item">
+                <i class="bi bi-building"></i>
+                <span>Registro de empresa cliente</span>
+              </div>
+              <div class="feature-item">
+                <i class="bi bi-patch-check"></i>
+                <span>Validaciones claras</span>
+              </div>
+              <div class="feature-item">
+                <i class="bi bi-arrow-repeat"></i>
+                <span>Flujo listo para login</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="col-lg-6 bg-white p-4 p-md-5">
+            <div class="auth-card mx-auto">
+              <div class="mb-4">
+                <h2 class="fw-bold mb-2">Registro de empresa</h2>
+                <p class="text-muted mb-0">Completa los datos para crear tu cuenta.</p>
+              </div>
+
+              <div id="globalAlert" class="alert d-none" role="alert"></div>
+
+              <form id="registerForm" novalidate>
+                <div class="mb-3">
+                  <label for="companyName" class="form-label fw-semibold">Nombre de la empresa</label>
+                  <div class="input-group input-group-auth">
+                    <span class="input-group-text"><i class="bi bi-buildings"></i></span>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="companyName"
+                      placeholder="Ej. GreenNode SAS"
+                      autocomplete="organization"
+                    />
+                  </div>
+                  <small class="field-error" id="companyNameError"></small>
+                </div>
+
+                <div class="mb-3">
+                  <label for="email" class="form-label fw-semibold">Correo empresarial</label>
+                  <div class="input-group input-group-auth">
+                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                    <input
+                      type="email"
+                      class="form-control"
+                      id="email"
+                      placeholder="contacto@empresa.com"
+                      autocomplete="email"
+                    />
+                  </div>
+                  <small class="field-error" id="emailError"></small>
+                </div>
+
+                <div class="mb-3">
+                  <label for="economicSector" class="form-label fw-semibold">Sector económico</label>
+                  <select id="economicSector" class="form-select">
+                    <option value="">Selecciona una opción</option>
+                    <option value="mining">Mining</option>
+                    <option value="energy">Energy</option>
+                    <option value="construction">Construction</option>
+                    <option value="food">Food</option>
+                  </select>
+                  <small class="field-error" id="economicSectorError"></small>
+                </div>
+
+                <div class="mb-3">
+                  <label for="employeeCount" class="form-label fw-semibold">Cantidad de empleados</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="employeeCount"
+                    min="0"
+                    placeholder="Ej. 25"
+                  />
+                  <small class="field-error" id="employeeCountError"></small>
+                </div>
+
+                <div class="mb-3">
+                  <label for="password" class="form-label fw-semibold">Contraseña</label>
+                  <div class="input-group input-group-auth">
+                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                    <input
+                      type="password"
+                      class="form-control"
+                      id="password"
+                      placeholder="Crea una contraseña segura"
+                      autocomplete="new-password"
+                    />
+                    <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                  </div>
+                  <small class="field-error" id="passwordError"></small>
+                  <div class="password-hints mt-2">
+                    <small>Mínimo 8 caracteres, 1 mayúscula y 1 número.</small>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <label for="confirmPassword" class="form-label fw-semibold">Confirmar contraseña</label>
+                  <div class="input-group input-group-auth">
+                    <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
+                    <input
+                      type="password"
+                      class="form-control"
+                      id="confirmPassword"
+                      placeholder="Repite la contraseña"
+                      autocomplete="new-password"
+                    />
+                    <button class="btn btn-outline-secondary toggle-password" type="button" data-target="confirmPassword">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                  </div>
+                  <small class="field-error" id="confirmPasswordError"></small>
+                </div>
+
+                <button id="btnRegister" type="submit" class="btn btn-success w-100 auth-btn">
+                  <span class="btn-text">Crear cuenta</span>
+                  <span class="btn-loading d-none">
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Registrando...
+                  </span>
+                </button>
+              </form>
+
+              <div class="text-center mt-4">
+                <p class="text-muted mb-0">
+                  ¿Ya tienes cuenta?
+                  <a href="/login" class="fw-semibold text-decoration-none auth-link">Inicia sesión</a>
+                </p>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script type="module" src="../../js/pages/register.js"></script>
+</body>
+</html>

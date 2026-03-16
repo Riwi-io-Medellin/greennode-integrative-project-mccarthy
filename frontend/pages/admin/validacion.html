@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GreenNode | Validación Humana</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../../styles/dashboard.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <div class="sidebar-brand-icon"><i class="bi bi-tree"></i></div>
+        <span class="sidebar-brand-name">GreenNode</span>
+    </div>
+    <ul class="sidebar-nav">
+        <li><a href="/admin/dashboard"><i class="bi bi-grid"></i><span class="nav-label">Dashboard</span></a></li>
+        <li><a href="/admin/cotizaciones"><i class="bi bi-file-text"></i><span class="nav-label">Cotizaciones</span></a></li>
+        <li class="active"><a href="/admin/validacion"><i class="bi bi-shield-check"></i><span class="nav-label">Validación Humana</span></a></li>
+        <li><a href="/admin/proyectos"><i class="bi bi-folder"></i><span class="nav-label">Proyectos</span></a></li>
+        <li><a href="/admin/archivos"><i class="bi bi-archive"></i><span class="nav-label">Archivos</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <button class="btn-logout-sidebar" onclick="logout()">
+            <i class="bi bi-box-arrow-right"></i>
+            <span class="logout-label">Cerrar sesión</span>
+        </button>
+        <button class="collapse-btn" id="collapseBtn">
+            <i class="bi bi-chevron-left"></i>
+            <span class="collapse-text">Colapsar</span>
+        </button>
+    </div>
+</aside>
+
+<div class="main-wrapper" id="mainWrapper">
+    <div class="topbar">
+        <div class="topbar-company">
+            <div class="company-avatar">AD</div>
+            <span id="adminName">Administrador</span>
+        </div>
+        <div class="topbar-actions">
+            <button class="btn-logout-topbar" onclick="logout()">
+                <i class="bi bi-box-arrow-right"></i> Salir
+            </button>
+        </div>
+    </div>
+
+    <!-- LISTADO -->
+    <div class="content" id="listView">
+        <div class="page-title">Validación Humana</div>
+        <div class="page-subtitle" id="validSubtitle">Marcos lógicos pendientes de revisión</div>
+        <div id="validationList" style="margin-top:1.5rem">
+            <div class="empty-state"><i class="bi bi-hourglass"></i>Cargando...</div>
+        </div>
+    </div>
+
+    <!-- DETALLE -->
+    <div class="content" id="detailView" style="display:none">
+        <div class="detail-header">
+            <a href="#" class="btn-back" onclick="showList(); return false;"><i class="bi bi-arrow-left"></i></a>
+            <div>
+                <div style="color:var(--gn-muted);font-size:0.82rem" id="detailCode">GN-0000</div>
+                <div style="display:flex;align-items:center;gap:0.75rem">
+                    <h2 style="margin:0;font-size:1.4rem;font-weight:700" id="detailTitle">—</h2>
+                    <span class="badge-status badge-pending" id="detailBadge">Pendiente</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="dual-panel">
+            <div class="panel-box panel-ai">
+                <div style="margin-bottom:0.75rem">
+                    <span class="ai-badge"><i class="bi bi-stars"></i> Borrador IA (original)</span>
+                </div>
+                <div id="aiDraftText" style="font-size:0.85rem;white-space:pre-wrap;line-height:1.7;color:var(--gn-text);max-height:500px;overflow-y:auto">—</div>
+            </div>
+            <div class="panel-box panel-validated">
+                <div style="margin-bottom:0.75rem;font-weight:700;color:#065f46;display:flex;align-items:center;gap:0.5rem">
+                    <i class="bi bi-check-circle-fill" style="color:#059669"></i> Versión validada por el administrador
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Texto del Marco Lógico <span style="color:#ef4444">*</span></label>
+                    <textarea class="form-control-gn" id="validatedText" style="min-height:240px" placeholder="Edita el borrador de IA aquí..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Monto final aprobado (COP)</label>
+                    <input type="number" class="form-control-gn" id="validatedAmount" placeholder="Ej: 620000000" />
+                    <div id="amountHint" style="font-size:0.76rem;color:var(--gn-muted);margin-top:0.25rem"></div>
+                </div>
+                <div style="display:flex;gap:0.75rem;margin-top:1.25rem">
+                    <button class="btn-primary-gn" onclick="saveValidation()" style="flex:1">
+                        <i class="bi bi-save"></i> Guardar como revisado
+                    </button>
+                    <button class="btn-outline-gn" onclick="sendToClient()" style="flex:1;background:#059669;color:#fff;border-color:#059669">
+                        <i class="bi bi-send"></i> Guardar y enviar
+                    </button>
+                </div>
+                <button class="btn-outline-gn" onclick="rejectQuote()" style="width:100%;margin-top:0.75rem;color:#ef4444;border-color:#ef4444">
+                    <i class="bi bi-x-circle"></i> Rechazar cotización
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+import { apiGet, apiPatch, requireAuth, getStatusBadge, getStatusLabel, formatCOP, escHtml, initSidebar, logout as logoutFn } from "../../js/utils/api.js";
+window.logout = logoutFn;
+
+requireAuth('admin');
+initSidebar();
+
+let currentQuoteId = null;
+
+document.getElementById('validatedAmount').addEventListener('input', function() {
+    const v = parseFloat(this.value);
+    document.getElementById('amountHint').textContent = v ? `≈ ${formatCOP(v)}` : '';
+});
+
+const params = new URLSearchParams(location.search);
+const preloadId = params.get('quoteId');
+
+async function loadList() {
+    const res = await apiGet('/api/quotes');
+    const quotes = (res?.data || []).filter(q => ['pending','reviewed'].includes(q.status));
+    document.getElementById('validSubtitle').textContent = `${quotes.length} marcos lógicos pendientes de revisión`;
+
+    const list = document.getElementById('validationList');
+    if (!quotes.length) {
+        list.innerHTML = '<div class="empty-state"><i class="bi bi-check2-all"></i>No hay cotizaciones pendientes de validación. ✓</div>';
+        return;
+    }
+    list.innerHTML = quotes.map(q => `
+        <div class="quote-card">
+            <div class="quote-card-header">
+                <div>
+                    <div class="quote-card-meta">
+                        <span style="color:var(--gn-muted);font-size:0.82rem;font-weight:600">GN-${String(q.id).padStart(4,'0')}</span>
+                        <span class="badge-status ${getStatusBadge(q.status)}">${getStatusLabel(q.status)}</span>
+                        <span class="ai-badge"><i class="bi bi-stars"></i> IA</span>
+                    </div>
+                    <div style="font-weight:700;font-size:1rem">${escHtml(q.title)}</div>
+                    <div style="color:var(--gn-muted);font-size:0.83rem">${escHtml(q.company_name)} · ${escHtml(q.territory_city||'')}</div>
+                    <div style="color:var(--gn-muted);font-size:0.8rem;margin-top:0.35rem">
+                        <i class="bi bi-clock"></i> ${new Date(q.created_at).toLocaleDateString('es-CO')} ·
+                        ${(q.tree_quantity||0).toLocaleString()} árboles · ${formatCOP(q.quoted_amount)}
+                    </div>
+                </div>
+                <button class="btn-primary-gn" onclick="openDetail(${q.id})">
+                    Revisar <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
+
+    if (preloadId) openDetail(parseInt(preloadId));
+}
+
+window.openDetail = async function(id) {
+    currentQuoteId = id;
+    const res = await apiGet(`/api/quotes/${id}`);
+    const q = res?.data;
+    if (!q) return;
+
+    document.getElementById('detailCode').textContent = `GN-${String(q.id).padStart(4,'0')}`;
+    document.getElementById('detailTitle').textContent = q.title;
+    document.getElementById('detailBadge').textContent = getStatusLabel(q.status);
+    document.getElementById('detailBadge').className = `badge-status ${getStatusBadge(q.status)}`;
+    document.getElementById('aiDraftText').textContent = q.ai_draft_text || 'Sin borrador disponible.';
+    document.getElementById('validatedText').value = q.ai_draft_text || '';
+    document.getElementById('validatedAmount').value = q.quoted_amount || '';
+    document.getElementById('amountHint').textContent = q.quoted_amount ? `≈ ${formatCOP(q.quoted_amount)}` : '';
+
+    document.getElementById('listView').style.display = 'none';
+    document.getElementById('detailView').style.display = 'block';
+};
+
+window.showList = function() {
+    document.getElementById('listView').style.display = 'block';
+    document.getElementById('detailView').style.display = 'none';
+    history.pushState({}, '', location.pathname);
+};
+
+window.saveValidation = async function() {
+    const text = document.getElementById('validatedText').value.trim();
+    const amount = document.getElementById('validatedAmount').value;
+    if (!text) return Swal.fire({ icon:'warning', title:'Escribe el texto validado', confirmButtonColor:'#198754' });
+
+    const r = await apiPatch(`/api/quotes/${currentQuoteId}/status`, {
+        status: 'reviewed',
+        ai_draft_text: text,
+        quoted_amount: amount ? parseFloat(amount) : null
+    });
+    if (r?.success === false) return Swal.fire({ icon:'error', title:'Error', text: r.message, confirmButtonColor:'#ef4444' });
+    Swal.fire({ icon:'success', title:'Guardado', text:'Cotización marcada como revisada con los cambios aplicados.', confirmButtonColor:'#198754' });
+    showList();
+    loadList();
+};
+
+window.sendToClient = async function() {
+    const text = document.getElementById('validatedText').value.trim();
+    const amount = document.getElementById('validatedAmount').value;
+    if (!text) return Swal.fire({ icon:'warning', title:'Escribe el texto validado antes de enviar', confirmButtonColor:'#198754' });
+
+    const conf = await Swal.fire({
+        title: '¿Enviar al cliente?',
+        text: 'Se guardarán todos los cambios (texto y monto) y el cliente podrá ver y aceptar la cotización.',
+        icon: 'question', showCancelButton: true,
+        confirmButtonColor: '#059669', confirmButtonText: 'Sí, enviar',
+        cancelButtonText: 'Cancelar'
+    });
+    if (!conf.isConfirmed) return;
+
+    // Usa el endpoint dedicado POST /send que guarda cambios + status='sent' en un solo paso
+    const r = await fetch(`/api/quotes/${currentQuoteId}/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        body: JSON.stringify({ ai_draft_text: text, quoted_amount: amount ? parseFloat(amount) : null })
+    });
+    const data = await r.json();
+    if (!data?.success) return Swal.fire({ icon:'error', title:'Error', text: data?.message, confirmButtonColor:'#ef4444' });
+
+    Swal.fire({ icon:'success', title:'¡Enviado!', text:'Cambios guardados y cotización enviada al cliente.', confirmButtonColor:'#059669' });
+    showList();
+    loadList();
+};
+
+window.rejectQuote = async function() {
+    const conf = await Swal.fire({
+        title: '¿Rechazar cotización?', text: 'Esta acción no se puede deshacer.',
+        icon: 'warning', showCancelButton: true,
+        confirmButtonColor: '#ef4444', confirmButtonText: 'Sí, rechazar', cancelButtonText: 'Cancelar'
+    });
+    if (!conf.isConfirmed) return;
+    await apiPatch(`/api/quotes/${currentQuoteId}/status`, { status: 'rejected' });
+    Swal.fire({ icon:'success', title:'Cotización rechazada', confirmButtonColor:'#198754' });
+    showList();
+    loadList();
+};
+
+loadList();
+</script>
+</body>
+</html>
