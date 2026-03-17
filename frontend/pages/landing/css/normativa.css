@@ -1,0 +1,216 @@
+:root {
+    --forest:       #0f2518;
+    --moss:         #2a5c3f;
+    --sage:         #4a8c6a;
+    --fern:         #74b894;
+    --mist:         #b8ddc8;
+    --petal:        #d1e7db;
+    --earth:        #7a5c3a;
+    --sand:         #eff0ef;
+    --linen:        #faf8f4;
+    --white:        #ffffff;
+    --text-dark:    #141f18;
+    --text-muted:   #4d6b58;
+
+    --danger-bg:    #fff5ef;
+    --danger-border:#c76b4f;
+    --danger-text:  #8b2a0f;
+    --danger-pill-bg: #f5d5c8;
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--linen);
+    color: var(--text-dark);
+    padding-top: 90px;
+}
+
+h1, h2, h3, h4 {
+    font-family: 'Playfair Display', serif;
+}
+
+.nav-link {
+    color: #4a5e52 !important;
+    font-weight: 500;
+    font-size: 15px;
+    transition: color .2s;
+}
+
+.nav-link:hover {
+    color: var(--moss) !important;
+}
+
+.btn-success {
+    background: var(--moss);
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: background .2s;
+}
+
+.btn-success:hover {
+    background: var(--forest);
+}
+
+.circulo-rojo {
+    display: inline-block;
+    background: var(--danger-pill-bg);
+    color: var(--danger-text);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    padding: 6px 16px;
+    border-radius: 50px;
+}
+
+.title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--forest);
+    line-height: 1.15;
+}
+
+.subtitle {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    line-height: 1.7;
+}
+
+.card-normativa {
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(150, 53, 29, 0.12);
+    border: 1px solid var(--danger-border);
+    padding: 44px;
+    background: var(--danger-bg);
+}
+
+.card-normativa h3 {
+    color: var(--forest);
+    font-weight: 700;
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+}
+
+.card-normativa p {
+    color: #4a3028;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin: 0;
+}
+
+.feature-card {
+    background: var(--white);
+    border: 1px solid var(--danger-border);
+    border-radius: 20px;
+    padding: 2rem 1.75rem;
+    height: 100%;
+    transition: background .3s, border-color .3s, transform .3s;
+}
+
+.feature-card:hover {
+    background: rgba(199,107,79,.07);
+    border-color: #e07050;
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(150,53,29,.1);
+}
+
+.feature-card h5 {
+    color: var(--forest);
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: .5rem;
+}
+
+.feature-card p {
+    color: var(--text-muted);
+    font-size: .92rem;
+    line-height: 1.65;
+    margin: 0;
+}
+
+.site-footer {
+    background: #090f0b;
+    color: rgba(255,255,255,.65);
+    padding: 72px 0 32px;
+    border-top: 1px solid rgba(116,184,148,.1);
+}
+
+.site-footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    color: var(--white);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.site-footer-tagline {
+    font-size: 14px;
+    color: rgba(255,255,255,.48);
+    line-height: 1.65;
+    max-width: 260px;
+    margin-bottom: 20px;
+}
+
+.site-footer-social {
+    display: flex;
+    gap: 10px;
+}
+
+.site-footer-social a {
+    width: 34px;
+    height: 34px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,.6);
+    font-size: 15px;
+    text-decoration: none;
+    transition: background .2s, color .2s;
+}
+
+.site-footer-social a:hover {
+    background: var(--moss);
+    color: var(--white);
+    border-color: var(--moss);
+}
+
+.site-footer-heading {
+    color: var(--white);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 16px;
+}
+
+.site-footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.site-footer-links li {
+    margin-bottom: 10px;
+}
+
+.site-footer-links a {
+    color: rgba(255,255,255,.52);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color .2s;
+}
+
+.site-footer-links a:hover {
+    color: #74b894;
+}
+
+.site-footer-copy {
+    font-size: 13px;
+    color: rgba(255,255,255,.35);
+    margin: 0;
+}
