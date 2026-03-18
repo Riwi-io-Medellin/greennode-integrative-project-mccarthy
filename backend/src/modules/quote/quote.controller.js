@@ -10,8 +10,7 @@ export async function createQuote(req, res) {
         if (!territory_id || !species_id || !title)
             return errorResponse(res, "Territorio, especie y título son obligatorios.", 400);
 
-        // Bloquea solo cotizaciones en vuelo. 'accepted' (proyecto ya creado) y 'rejected'
-        // son estados terminales: la empresa puede solicitar nuevas cotizaciones
+        // la empresa puede solicitar nuevas cotizaciones
         const existingQuote = await pool.query(
             `SELECT id FROM quote WHERE company_id = $1 AND status IN ('pending','reviewed','sent') LIMIT 1`,
             [company_id]
