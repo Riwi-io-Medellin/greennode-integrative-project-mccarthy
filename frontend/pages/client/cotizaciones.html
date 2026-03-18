@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GreenNode | Cotizaciones</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../../styles/dashboard.css" />
+  </head>
+  <body>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon" style="background: #16a34a">
+          <i class="bi bi-tree-fill"></i>
+        </div>
+        <span class="sidebar-brand-name">GreenNode</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li>
+          <a href="/client/proyectos"><i class="bi bi-folder"></i><span class="nav-label">Proyectos</span></a>
+        </li>
+        <li class="active">
+          <a href="/client/cotizaciones"><i class="bi bi-file-earmark-text"></i><span class="nav-label">Cotizaciones</span></a>
+        </li>
+      </ul>
+      <div class="sidebar-footer">
+        <button class="btn-logout-sidebar" onclick="logout()">
+          <i class="bi bi-box-arrow-right"></i>
+          <span class="logout-label">Cerrar sesión</span>
+        </button>
+        <button class="collapse-btn" id="collapseBtn">
+          <i class="bi bi-chevron-left"></i>
+          <span class="collapse-text">Colapsar</span>
+        </button>
+      </div>
+    </aside>
+
+    <div class="main-wrapper" id="mainWrapper">
+      <div class="topbar">
+        <div class="topbar-company">
+          <div class="company-avatar" id="companyAvatar">EA</div>
+          <span id="companyName">Mi Empresa</span>
+        </div>
+        <div class="topbar-actions">
+          <a href="/client/nueva-cotizacion" class="btn-new-quote" id="newQuoteBtn">
+            <i class="bi bi-plus"></i> Nueva Cotización
+          </a>
+          <div class="user-avatar" id="userAvatar" onclick="openCompanyModal()" style="cursor: pointer"></div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="page-title">Mis Cotizaciones</div>
+        <div class="page-subtitle" id="subtitle">Historial de cotizaciones</div>
+        <div id="quotesList" style="margin-top: 1.5rem"></div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script type="module" src="/js/client/cotizaciones.js"></script>
+  </body>
+</html>
