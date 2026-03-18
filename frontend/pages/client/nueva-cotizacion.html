@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GreenNode | Nueva Cotización</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../../styles/dashboard.css" />
+    <link rel="stylesheet" href="/pages/client/nueva-cotizacion.css" />
+  </head>
+  <body>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon" style="background: #16a34a">
+          <i class="bi bi-tree-fill"></i>
+        </div>
+        <span class="sidebar-brand-name">GreenNode</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li>
+          <a href="/client/proyectos"><i class="bi bi-folder"></i><span class="nav-label">Proyectos</span></a>
+        </li>
+        <li class="active">
+          <a href="/client/cotizaciones"><i class="bi bi-file-earmark-text"></i><span class="nav-label">Cotizaciones</span></a>
+        </li>
+      </ul>
+      <div class="sidebar-footer">
+        <button class="collapse-btn" id="collapseBtn">
+          <i class="bi bi-chevron-left"></i><span class="collapse-text">Colapsar</span>
+        </button>
+      </div>
+    </aside>
+    <div class="main-wrapper" id="mainWrapper">
+      <div class="topbar">
+        <div class="topbar-company">
+          <div class="company-avatar" id="companyAvatar">EA</div>
+          <span id="companyName">Mi Empresa</span>
+        </div>
+        <div class="topbar-actions">
+          <div class="user-avatar" id="userAvatar" onclick="openCompanyModal()" style="cursor: pointer"></div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="detail-header">
+          <a href="/client/cotizaciones" class="btn-back"><i class="bi bi-arrow-left"></i></a>
+          <div>
+            <h2 style="margin: 0; font-size: 1.4rem; font-weight: 700">Nueva Cotización</h2>
+            <div style="color: var(--gn-muted); font-size: 0.85rem">
+              GreenNode IA generará un Marco Lógico técnico
+            </div>
+          </div>
+        </div>
+
+        <!-- Barra de pasos -->
+        <div class="step-nav" id="stepNav">
+          <div class="snav-item">
+            <div class="snav-circle active" id="sn1">1</div>
+            <span class="snav-label active" id="sl1">Empresa</span>
+          </div>
+          <div class="snav-line" id="sl-1"></div>
+          <div class="snav-item">
+            <div class="snav-circle" id="sn2">2</div>
+            <span class="snav-label" id="sl2">Territorio</span>
+          </div>
+          <div class="snav-line" id="sl-2"></div>
+          <div class="snav-item">
+            <div class="snav-circle" id="sn3">3</div>
+            <span class="snav-label" id="sl3">Resumen</span>
+          </div>
+          <div class="snav-line" id="sl-3"></div>
+          <div class="snav-item">
+            <div class="snav-circle" id="sn4">4</div>
+            <span class="snav-label" id="sl4">Especie</span>
+          </div>
+          <div class="snav-line" id="sl-4"></div>
+          <div class="snav-item">
+            <div class="snav-circle" id="sn5">5</div>
+            <span class="snav-label" id="sl5">Confirmar</span>
+          </div>
+        </div>
+
+        <!-- Paso 1: Empresa -->
+        <div class="step-panel active card-panel" id="step1">
+          <h3 class="fw-bold mb-3">Empresa y Sector</h3>
+          <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="border: 1px solid var(--gn-green); background: #f0fdf4;">
+            <div class="d-flex align-items-center justify-content-center rounded-3" style="width:48px;height:48px;background:#dcfce7;font-size:1.3rem;">🏢</div>
+            <div class="flex-grow-1">
+              <div class="fw-bold" id="companyDisplayName">—</div>
+              <div class="text-muted" style="font-size:0.85rem" id="companyDisplayMeta">—</div>
+            </div>
+            <span class="badge rounded-pill text-white fw-bold" style="background:var(--gn-green);font-size:0.8rem;padding:0.3rem 0.9rem;">✓ Empresa activa</span>
+          </div>
+          <p class="text-muted mt-3" style="font-size:0.85rem;">
+            Esta es la empresa con la que generaremos la cotización. El cálculo de árboles se hace automáticamente según el número de empleados registrados.
+          </p>
+          <button class="btn-primary-gn w-100 justify-content-center py-2 mt-2" onclick="goStep(2)">
+            Siguiente ›
+          </button>
+        </div>
+
+        <!-- Paso 2: Territorio -->
+        <div class="step-panel card-panel" id="step2">
+          <h3 class="fw-bold mb-1">Territorio</h3>
+          <p class="text-muted mb-3" style="font-size:0.85rem;">Selecciona la zona donde se realizará la reforestación</p>
+          <div id="territoriesList">Cargando territorios...</div>
+          <div class="d-flex gap-2 mt-3">
+            <button class="btn-outline-gn" onclick="goStep(1)">Atrás</button>
+            <button class="btn-primary-gn flex-grow-1 justify-content-center" id="btnNextStep2" onclick="goStep(3)" style="opacity:0.5;pointer-events:none;" disabled>
+              Siguiente ›
+            </button>
+          </div>
+        </div>
+
+        <!-- Paso 3: Resumen del proyecto -->
+        <div class="step-panel card-panel" id="step3">
+          <h3 class="fw-bold mb-1">Resumen del proyecto</h3>
+          <p class="text-muted mb-3" style="font-size:0.85rem;">Información sobre el territorio seleccionado</p>
+          <div id="territoryDetail" class="p-3 rounded-3 mb-3" style="background:var(--gn-bg);font-size:0.88rem;"></div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Título del proyecto *</label>
+            <input type="text" class="form-control" id="projectTitle" placeholder="Ej. Reforestación Corredor Verde Caribe" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Descripción (opcional)</label>
+            <textarea class="form-control" id="projectDesc" rows="3" placeholder="Describe brevemente los objetivos del proyecto..."></textarea>
+          </div>
+          <div class="d-flex gap-2 mt-3">
+            <button class="btn-outline-gn" onclick="goStep(2)">Atrás</button>
+            <button class="btn-primary-gn flex-grow-1 justify-content-center" onclick="validateStep3()">Siguiente ›</button>
+          </div>
+        </div>
+
+        <!-- Paso 4: Especie -->
+        <div class="step-panel card-panel" id="step4">
+          <h3 class="fw-bold mb-1">Preferencias de Especies</h3>
+          <p class="text-muted mb-3" style="font-size:0.85rem;">La IA priorizará estas especies basándose en tu zona. Selecciona una.</p>
+          <div id="speciesList">Cargando especies...</div>
+          <div class="d-flex gap-2 mt-3">
+            <button class="btn-outline-gn" onclick="goStep(3)">Atrás</button>
+            <button class="btn-primary-gn flex-grow-1 justify-content-center" id="btnNextStep4" onclick="goStep(5)" style="opacity:0.5;pointer-events:none;" disabled>
+              Siguiente ›
+            </button>
+          </div>
+        </div>
+
+        <!-- Paso 5: Confirmar -->
+        <div class="step-panel card-panel" id="step5">
+          <h3 class="fw-bold mb-1">Confirmación</h3>
+          <p class="text-muted mb-3" style="font-size:0.85rem;">Revisa los datos antes de enviar la cotización a la IA</p>
+          <div id="confirmSummary"></div>
+          <div class="alert-banner alert-info mt-3">
+            <i class="bi bi-stars"></i>
+            <span>GreenNode IA generará un Marco Lógico completo con fechas, actividades y presupuesto estimado.</span>
+          </div>
+          <div class="d-flex gap-2 mt-3">
+            <button class="btn-outline-gn" onclick="goStep(4)">Atrás</button>
+            <button class="btn-primary-gn flex-grow-1 justify-content-center" id="btnSubmit" onclick="submitQuote()">
+              <span id="submitText"><i class="bi bi-stars"></i> Generar cotización con IA</span>
+              <span id="submitLoading" style="display:none"><span class="spinner-border spinner-border-sm me-1"></span> Generando...</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="/js/client/nueva-cotizacion.js"></script>
+  </body>
+</html>

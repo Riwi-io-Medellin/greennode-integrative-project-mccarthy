@@ -1,0 +1,30 @@
+:root {
+  --green-primary: #2d6a4f;
+  --green-hover: #245a42;
+
+  --gn-green: #198754;
+  --gn-green-dark: #146c43;
+  --gn-green-light: #d1e7dd;
+
+  --gn-bg: #f8fafb;
+  --gn-text: #1f2937;
+  --gn-muted: #6b7280;
+  --gn-border: #e5e7eb;
+  --gn-white: #ffffff;
+
+  --gn-danger: #dc3545;
+  --gn-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --gn-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.btn-green {
+  background-color: var(--green-primary);
+  color: #fff;
+  border: none;
+}
+
+.btn-green:hover,
+.btn-green:focus {
+  background-color: var(--green-hover);
+  color: #fff;
+}

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GreenNode | Cotizaciones</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../../styles/dashboard.css" />
+  </head>
+  <body>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon"><i class="bi bi-tree"></i></div>
+        <span class="sidebar-brand-name">GreenNode</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li><a href="/admin/dashboard"><i class="bi bi-grid"></i><span class="nav-label">Dashboard</span></a></li>
+        <li class="active"><a href="/admin/cotizaciones"><i class="bi bi-file-text"></i><span class="nav-label">Cotizaciones</span></a></li>
+        <li><a href="/admin/validacion"><i class="bi bi-shield-check"></i><span class="nav-label">Validación Humana</span></a></li>
+        <li><a href="/admin/proyectos"><i class="bi bi-folder"></i><span class="nav-label">Proyectos</span></a></li>
+        <li><a href="/admin/archivos"><i class="bi bi-archive"></i><span class="nav-label">Archivos</span></a></li>
+      </ul>
+      <div class="sidebar-footer">
+        <button class="btn-logout-sidebar" onclick="logout()">
+          <i class="bi bi-box-arrow-right"></i>
+          <span class="logout-label">Cerrar sesión</span>
+        </button>
+        <button class="collapse-btn" id="collapseBtn">
+          <i class="bi bi-chevron-left"></i><span class="collapse-text">Colapsar</span>
+        </button>
+      </div>
+    </aside>
+
+    <div class="main-wrapper" id="mainWrapper">
+      <div class="topbar">
+        <div class="topbar-company">
+          <div class="company-avatar">AD</div>
+          <span id="adminName">Administrador</span>
+        </div>
+        <div class="topbar-search">
+          <input type="text" placeholder="Buscar cotización..." id="searchInput" />
+        </div>
+        <div class="topbar-actions">
+          <button class="btn-logout-topbar" onclick="logout()">
+            <i class="bi bi-box-arrow-right"></i> Salir
+          </button>
+          <div class="user-avatar" id="userAvatar" onclick="toggleDropdown()">
+            AD
+            <div class="user-dropdown" id="userDropdown">
+              <a href="#" class="logout" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+          <div>
+            <div class="page-title">Cotizaciones (Preventa IA)</div>
+            <div class="page-subtitle" id="quoteSubtitle">Cargando...</div>
+          </div>
+        </div>
+
+        <div id="quotesList">
+          <div class="empty-state">
+            <i class="bi bi-hourglass"></i>Cargando cotizaciones...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="/js/admin/cotizaciones.js"></script>
+  </body>
+</html>
