@@ -13,9 +13,10 @@ router.get("/my", authenticateToken, authorizeRoles("client"), getMyQuotes);
 router.get("/", authenticateToken, authorizeRoles("admin"), getAllQuotes);
 router.get("/:id", authenticateToken, getQuoteById);
 
-
+//Actualizar el estado de la cotizaci[on
 router.patch("/:id/status", authenticateToken, updateQuoteStatus);
 
+//SOLO ADMIN
 router.post("/:id/send", authenticateToken, authorizeRoles("admin"), sendQuoteToClient);
 
 export default router;
