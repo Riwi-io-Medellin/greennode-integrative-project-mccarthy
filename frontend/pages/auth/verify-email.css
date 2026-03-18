@@ -1,0 +1,83 @@
+/* ============================================================
+   verify-email.css — Estilos específicos de la página OTP
+   Complementa auth.css (cargado antes que este archivo).
+   ============================================================ */
+
+/* Grupo de inputs OTP */
+.otp-group {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 1.75rem 0;
+}
+
+.otp-input {
+  width: 52px;
+  height: 62px;
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 700;
+  border: 2px solid var(--gn-border);
+  border-radius: 12px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  color: var(--gn-text);
+  caret-color: var(--gn-green);
+}
+
+.otp-input:focus {
+  border-color: var(--gn-green);
+  box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.15);
+}
+
+.otp-input.filled {
+  border-color: var(--gn-green);
+  background: #f0fdf4;
+}
+
+.otp-input.error {
+  border-color: var(--gn-danger);
+  background: #fff5f5;
+}
+
+/* Chip con el email del destinatario */
+.email-chip {
+  display: inline-block;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: var(--gn-green-dark);
+  border-radius: 999px;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-top: 0.4rem;
+}
+
+/* Botón de reenvío deshabilitado */
+#resendBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Cabecera verde de la tarjeta */
+.verify-card-header {
+  background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
+  padding: 2.5rem 2rem;
+  text-align: center;
+}
+
+.verify-card-icon {
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 2rem;
+}
+
+.verify-card-body {
+  padding: 2rem 2rem 1.5rem;
+}

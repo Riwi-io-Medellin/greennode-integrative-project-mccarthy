@@ -4,13 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GreenNode | Cotizaciones</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-      rel="stylesheet"
-    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="../../styles/dashboard.css" />
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   </head>
   <body>
     <aside class="sidebar" id="sidebar">
@@ -22,16 +18,10 @@
       </div>
       <ul class="sidebar-nav">
         <li>
-          <a href="/client/proyectos"
-            ><i class="bi bi-folder"></i
-            ><span class="nav-label">Proyectos</span></a
-          >
+          <a href="/client/proyectos"><i class="bi bi-folder"></i><span class="nav-label">Proyectos</span></a>
         </li>
         <li class="active">
-          <a href="/client/cotizaciones"
-            ><i class="bi bi-file-earmark-text"></i
-            ><span class="nav-label">Cotizaciones</span></a
-          >
+          <a href="/client/cotizaciones"><i class="bi bi-file-earmark-text"></i><span class="nav-label">Cotizaciones</span></a>
         </li>
       </ul>
       <div class="sidebar-footer">
@@ -53,18 +43,10 @@
           <span id="companyName">Mi Empresa</span>
         </div>
         <div class="topbar-actions">
-          <a
-            href="/client/nueva-cotizacion"
-            class="btn-new-quote"
-            id="newQuoteBtn"
-            ><i class="bi bi-plus"></i> Nueva Cotización</a
-          >
-          <div
-            class="user-avatar"
-            id="userAvatar"
-            onclick="openCompanyModal()"
-            style="cursor: pointer"
-          ></div>
+          <a href="/client/nueva-cotizacion" class="btn-new-quote" id="newQuoteBtn">
+            <i class="bi bi-plus"></i> Nueva Cotización
+          </a>
+          <div class="user-avatar" id="userAvatar" onclick="openCompanyModal()" style="cursor: pointer"></div>
         </div>
       </div>
       <div class="content">
@@ -74,293 +56,9 @@
       </div>
     </div>
 
-    <script type="module">
-      import {
-        apiGet,
-        requireAuth,
-        getStatusBadge,
-        getStatusLabel,
-        formatCOP,
-        escHtml,
-        initSidebar,
-        logout as logoutFn,
-        openCompanyModal,
-      } from "../../js/utils/api.js";
-      window.openCompanyModal = () => openCompanyModal(user);
-      window.logout = logoutFn;
-      const user = requireAuth("client");
-      initSidebar();
-
-      const initials = (user?.companyName || "ME")
-        .substring(0, 2)
-        .toUpperCase();
-      document.getElementById("companyAvatar").textContent = initials;
-      document.getElementById("companyName").textContent =
-        user?.companyName || "";
-      document.getElementById("userAvatar").textContent = initials;
-
-      let allQuotes = [];
-
-      async function load() {
-        const res = await apiGet("/api/quotes/my");
-        allQuotes = res?.data || [];
-        document.getElementById("subtitle").textContent =
-          `${allQuotes.length} cotizaciones en total`;
-
-        const hasActive = allQuotes.some((q) =>
-          ["pending", "reviewed", "sent"].includes(q.status),
-        );
-        const btn = document.getElementById("newQuoteBtn");
-        if (hasActive) {
-          btn.style.opacity = "0.5";
-          btn.style.pointerEvents = "none";
-          btn.title = "Ya tienes una cotización activa";
-        }
-
-        const container = document.getElementById("quotesList");
-        if (!allQuotes.length) {
-          container.innerHTML = `<div class="empty-state"><i class="bi bi-file-earmark-x"></i>No tienes cotizaciones aún.<br><a href="/client/nueva-cotizacion" class="btn-primary-gn" style="margin-top:1rem;display:inline-flex"><i class="bi bi-plus"></i> Crear cotización</a></div>`;
-          return;
-        }
-
-        container.innerHTML = allQuotes
-          .map(
-            (q) => `
-        <div class="quote-card">
-            <div class="quote-card-header">
-                <div>
-                    <div class="quote-card-meta">
-                        <span style="color:var(--gn-muted);font-size:0.82rem;font-weight:600">GN-${String(q.id).padStart(4, "0")}</span>
-                        <span class="badge-status ${getStatusBadge(q.status)}">${getStatusLabel(q.status)}</span>
-                        <span class="ai-badge"><i class="bi bi-stars"></i> IA</span>
-                    </div>
-                    <div style="font-size:1rem;font-weight:700">${escHtml(q.title)}</div>
-                    <div style="color:var(--gn-muted);font-size:0.83rem">${escHtml(q.territory_name)} · ${escHtml(q.territory_city || "")} · ${escHtml(q.species_name)}</div>
-                    <div style="color:var(--gn-muted);font-size:0.8rem;margin-top:0.25rem">
-                        <i class="bi bi-calendar3"></i> ${new Date(q.created_at).toLocaleDateString("es-CO")} · ${(q.tree_quantity || 0).toLocaleString()} árboles
-                    </div>
-                </div>
-                <div class="quote-card-amount">${formatCOP(q.quoted_amount)}<small>${(q.tree_quantity || 0).toLocaleString()} árboles</small></div>
-            </div>
-            <div class="quote-card-footer">
-                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center">
-                    ${q.ai_draft_text ? `<button class="btn-outline-gn" onclick="downloadPDF(${q.id})" style="font-size:0.8rem"><i class="bi bi-file-earmark-pdf" style="color:#ef4444"></i> Descargar PDF</button>` : ""}
-                    ${
-                      q.status === "sent"
-                        ? `
-                        <button class="btn-primary-gn" onclick="acceptQuote(${q.id})"><i class="bi bi-check2"></i> Aceptar</button>
-                        <button class="btn-outline-gn" onclick="rejectQuote(${q.id})" style="color:#ef4444;border-color:#ef4444"><i class="bi bi-x"></i> Rechazar</button>
-                    `
-                        : ""
-                    }
-                </div>
-            </div>
-            ${
-              q.ai_draft_text
-                ? `
-            <div style="margin-top:1rem;border-top:1px solid var(--gn-border);padding-top:0.75rem">
-                <div style="font-weight:600;font-size:0.82rem;margin-bottom:0.4rem;color:var(--gn-primary)"><i class="bi bi-stars"></i> Marco Lógico:</div>
-                <div style="background:var(--gn-bg);border-radius:8px;padding:0.75rem;font-size:0.82rem;white-space:pre-wrap;max-height:110px;overflow:hidden;line-height:1.6">${escHtml(q.ai_draft_text.substring(0, 400))}${q.ai_draft_text.length > 400 ? "..." : ""}</div>
-            </div>`
-                : ""
-            }
-        </div>
-    `,
-          )
-          .join("");
-      }
-
-      window.acceptQuote = async function (id) {
-        const conf = await Swal.fire({
-          title: "¿Aceptar esta cotización?",
-          text: "Se creará un proyecto en progreso automáticamente.",
-          icon: "question",
-          showCancelButton: true,
-          confirmButtonColor: "#059669",
-          confirmButtonText: "Sí, aceptar",
-          cancelButtonText: "Cancelar",
-        });
-        if (!conf.isConfirmed) return;
-
-        const r = await fetch(`/api/quotes/${id}/status`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({ status: "accepted" }),
-        });
-        const data = await r.json();
-        if (!data?.success)
-          return Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: data?.message,
-            confirmButtonColor: "#ef4444",
-          });
-
-        await Swal.fire({
-          icon: "success",
-          title: "¡Cotización aceptada!",
-          text: "Tu proyecto fue creado y está en progreso.",
-          confirmButtonColor: "#059669",
-          confirmButtonText: "Ver proyectos",
-        });
-        location.href = "/client/proyectos";
-      };
-
-      window.rejectQuote = async function (id) {
-        const conf = await Swal.fire({
-          title: "¿Rechazar esta cotización?",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#ef4444",
-          confirmButtonText: "Sí, rechazar",
-          cancelButtonText: "Cancelar",
-        });
-        if (!conf.isConfirmed) return;
-        await fetch(`/api/quotes/${id}/status`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({ status: "rejected" }),
-        });
-        Swal.fire({
-          icon: "info",
-          title: "Cotización rechazada",
-          confirmButtonColor: "#198754",
-        });
-        load();
-      };
-
-      window.downloadPDF = function (id) {
-        const q = allQuotes.find((x) => x.id === id);
-        if (!q) return;
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ unit: "mm", format: "a4" });
-        const M = 20,
-          W = 210;
-        let y = 20;
-
-        doc.setFillColor(5, 150, 105);
-        doc.rect(0, 0, W, 32, "F");
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(18);
-        doc.setFont("helvetica", "bold");
-        doc.text("GreenNode", M, 14);
-        doc.setFontSize(9);
-        doc.setFont("helvetica", "normal");
-        doc.text("Plataforma B2B de Reforestación", M, 21);
-        doc.setFontSize(12);
-        doc.setFont("helvetica", "bold");
-        doc.text("COTIZACIÓN OFICIAL", W - M, 14, { align: "right" });
-        doc.setFontSize(9);
-        doc.setFont("helvetica", "normal");
-        doc.text(`GN-${String(q.id).padStart(4, "0")}`, W - M, 21, {
-          align: "right",
-        });
-        doc.text(new Date().toLocaleDateString("es-CO"), W - M, 27, {
-          align: "right",
-        });
-
-        y = 45;
-        doc.setTextColor(30, 30, 30);
-        doc.setFontSize(14);
-        doc.setFont("helvetica", "bold");
-        doc.text(q.title || "Cotización", M, y);
-        y += 8;
-        doc.setFontSize(9);
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(100, 100, 100);
-        doc.text(
-          `Empresa: ${q.company_name || "—"} · ${q.territory_name || "—"}, ${q.territory_city || ""}`,
-          M,
-          y,
-        );
-        y += 12;
-
-        doc.setTextColor(30, 30, 30);
-        const rows = [
-          [
-            "Estado",
-            {
-              pending: "Pendiente",
-              reviewed: "Revisado",
-              sent: "Enviado",
-              accepted: "Aceptado",
-              rejected: "Rechazado",
-            }[q.status] || q.status,
-          ],
-          [
-            "Monto aprobado",
-            q.quoted_amount
-              ? `COP $${Number(q.quoted_amount).toLocaleString("es-CO")}`
-              : "—",
-          ],
-          [
-            "Árboles a sembrar",
-            `${(q.tree_quantity || 0).toLocaleString()} árboles`,
-          ],
-          ["Especie", q.species_name || "—"],
-          [
-            "Territorio",
-            `${q.territory_name || "—"} (${q.territory_city || "—"})`,
-          ],
-          [
-            "Fecha de solicitud",
-            new Date(q.created_at).toLocaleDateString("es-CO"),
-          ],
-        ];
-        doc.setFillColor(243, 250, 246);
-        doc.rect(M, y - 4, W - M * 2, rows.length * 8 + 6, "F");
-        doc.setDrawColor(200, 230, 210);
-        doc.rect(M, y - 4, W - M * 2, rows.length * 8 + 6, "S");
-        rows.forEach(([l, v]) => {
-          doc.setFont("helvetica", "bold");
-          doc.setFontSize(9);
-          doc.text(l + ":", M + 4, y + 1);
-          doc.setFont("helvetica", "normal");
-          doc.text(v, M + 65, y + 1);
-          y += 8;
-        });
-        y += 10;
-
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(12);
-        doc.setTextColor(5, 150, 105);
-        doc.text("Marco Lógico", M, y);
-        y += 5;
-        doc.setDrawColor(5, 150, 105);
-        doc.line(M, y, W - M, y);
-        y += 6;
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(9);
-        doc.setTextColor(40, 40, 40);
-        doc
-          .splitTextToSize(q.ai_draft_text || "—", W - M * 2)
-          .forEach((line) => {
-            if (y > 270) {
-              doc.addPage();
-              y = 20;
-            }
-            doc.text(line, M, y);
-            y += 5.5;
-          });
-
-        const total = doc.internal.getNumberOfPages();
-        for (let i = 1; i <= total; i++) {
-          doc.setPage(i);
-          doc.setFontSize(8);
-          doc.setTextColor(160, 160, 160);
-          doc.text("GreenNode · greennode.co", M, 290);
-          doc.text(`Página ${i} de ${total}`, W - M, 290, { align: "right" });
-        }
-        doc.save(`GreenNode-Cotizacion-GN${String(q.id).padStart(4, "0")}.pdf`);
-      };
-
-      load();
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script type="module" src="/js/client/cotizaciones.js"></script>
   </body>
 </html>
